@@ -1,26 +1,55 @@
 import logging
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, status, HTTPException, Request, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.movie import MovieCreate, MovieRead
-
-from app.repositories.movies import MovieRepository
-
+from app.schemas.movie import MovieCreate, MovieOut
+# from app.repositories.movies import MovieRepository
+from app.services import movie_service
 from app.core.exceptions import NotFoundError
-
-logger = logging.getLogger(__name__)
+from app.core.database import get_db
+from app.core.logging_utils import get_logger
 
 router = APIRouter(
     prefix="/movies",
     tags=["movies"],
 )
 
-repo = MovieRepository()
+# repo = MovieRepository()
 
-@router.post("", response_model=MovieRead, status_code=status.HTTP_201_CREATED)
-def create_movie(movie: MovieCreate):
-    created = repo.create(movie)
-    logger.info("movie created: id=%s title=%s", created.id, created.title)
+# @router.post("", response_model=MovieRead, status_code=status.HTTP_201_CREATED)
+# def create_movie(movie: MovieCreate):
+#     created = repo.create(movie)
+#     logger.info("movie created: id=%s title=%s", created.id, created.title)
+#     return created
+
+@router.post(
+    "/",
+    response_model=MovieOut,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_movie(
+    movie: MovieCreate,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    logger = get_logger(__name__, request)
+    logger.info(
+        "Creating movie",
+        extra={
+            "title": movie.title,
+        },
+    )
+
+    created = await movie_service.create_movie(
+        db,
+        title=movie.title,
+        review=movie.review,
+    )
+
+    logger.info("Movie created", extra={"movie_id": created.id},)
+
     return created
+
 
 # @router.get("/{movie_id}", response_model=MovieRead)
 # def get_movie(movie_id: int):
@@ -31,11 +60,12 @@ def create_movie(movie: MovieCreate):
 #     except NotFoundError as e:
 #         raise HTTPException(status_code=404, detail=e.message)
 
-@router.get("/{movie_id}", response_model=MovieRead)
-def get_movie(movie_id: int):
-    movie_fetched = repo.get_by_id(movie_id)
-    logger.info("movie fetched: id=%s title=%s", movie_id, movie_fetched.title)
-    return movie_fetched
+# @router.get("/{movie_id}", response_model=MovieRead)
+# def get_movie(movie_id: int):
+#     # movie_fetched = repo.get_by_id(movie_id)
+#     movie_fetched = movie_service.get_movie(movie_id)
+#     logger.info("movie fetched: id=%s title=%s", movie_id, movie_fetched.title)
+#     return movie_fetched
 
 
 """

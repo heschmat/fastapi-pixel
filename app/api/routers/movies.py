@@ -81,3 +81,41 @@ Input should be a valid dictionary or object to extract fields from
 input: None
 
 """
+
+@router.get(
+    "/{movie_id}",
+    response_model=MovieOut,
+    status_code=status.HTTP_200_OK,
+)
+async def get_movie(
+    movie_id: int,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    logger = get_logger(__name__, request)
+
+    logger.info(
+        "Fetching movie",
+        extra={
+            "movie_id": movie_id,
+        },
+    )
+
+    movie = await movie_service.get_movie(db, movie_id=movie_id)
+
+    # if not movie:
+    #     logger.warning(
+    #         "Movie not found",
+    #         extra={"movie_id": movie_id},
+    #     )
+    #     raise HTTPException(
+    #         status_code=status.HTTP_404_NOT_FOUND,
+    #         detail="Movie not found",
+    #     )
+
+    logger.info(
+        "Movie fetched successfully",
+        extra={"movie_id": movie.id},
+    )
+
+    return movie

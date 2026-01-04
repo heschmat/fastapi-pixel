@@ -1,6 +1,7 @@
 import logging
 from fastapi import FastAPI, Request
 
+from app.core.middleware import logging_context_middleware
 from app.core.logging import setup_logging
 from app.api.routers import movies
 from app.core.exception_handlers import register_exception_handlers
@@ -10,6 +11,8 @@ from app.core.database import init_db, engine
 setup_logging()
 
 app = FastAPI()
+
+app.middleware("http")(logging_context_middleware)
 
 logger = logging.getLogger(__name__)
 

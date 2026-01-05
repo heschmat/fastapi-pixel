@@ -25,8 +25,3 @@ async def get_db() -> AsyncSession:
 
     except SQLAlchemyError:
         raise
-
-# just for dev:
-async def init_db(engine: AsyncEngine) -> None:
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)

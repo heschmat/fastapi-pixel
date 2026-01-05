@@ -3,17 +3,18 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.base import Base
 
-class Movie(Base):
-    __tablename__ = "movies"
+class User(Base):
+    __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    title: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
 
     reviews: Mapped[list["Review"]] = relationship(
         "Review",
-        back_populates="movie",
+        back_populates="user",
         cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:
-        return f"Movie(id={self.id!r}, title={self.title!r})"
+        return f"User(id={self.id!r}, email={self.email!r})"

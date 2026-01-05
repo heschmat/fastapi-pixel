@@ -29,6 +29,14 @@ class Settings(BaseSettings):
     db_host: str = Field("db", env="DB_HOST")
     db_port: int = Field(5432, env="DB_PORT")
 
+
+    # ───────────────────────
+    # JWT
+    # ───────────────────────
+    SECRET_KEY: str = "CHANGE_ME"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+
     # ───────────────────────
     # Async database URL (asyncpg)
     # ───────────────────────
@@ -49,7 +57,7 @@ class Settings(BaseSettings):
     def database_url_sync(self) -> str:
         password = quote_plus(self.db_pass)
         return (
-            f"postgresql+psycopg://"
+            f"postgresql+psycopg2://"
             f"{self.db_user}:{password}@{self.db_host}:{self.db_port}/{self.db_name}"
         )
 

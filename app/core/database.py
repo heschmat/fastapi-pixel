@@ -12,7 +12,8 @@ from app.core.base import Base
 print("DATABASE_URL USED BY APP:", settings.database_url_async)
 engine = create_async_engine(
     settings.database_url_async,
-    echo=settings.environment == "development",
+    # echo=settings.environment == "development",
+    echo = False,
     pool_pre_ping=True,
 )
 

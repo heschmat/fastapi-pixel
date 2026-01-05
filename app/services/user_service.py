@@ -6,6 +6,7 @@ from fastapi import HTTPException, status
 
 from app.models.user import User
 from app.core.security import hash_password, verify_password
+from app.core.exceptions import NotFoundError, ValidationError
 
 
 async def register_user(
@@ -52,6 +53,7 @@ async def authenticate_user(
         )
 
     if not user or not verify_password(password, user.password_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+        # raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+        raise ValidationError(f"invalid credentials")
 
     return user

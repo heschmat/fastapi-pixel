@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas.movie import MovieCreate, MovieOut
 # from app.repositories.movies import MovieRepository
 from app.services import movie_service
-from app.core.exceptions import NotFoundError
 from app.core.database import get_db
 from app.core.logging_utils import get_logger
 

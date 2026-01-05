@@ -8,9 +8,7 @@ async def create_movie(
     db: AsyncSession,
     *,
     title: str,
-    review: str,
 ) -> Movie:
-    print(f" ++++++ title={title!r}, len={len(title)} +++++ ")
     if len(title) < 3:
         raise ValidationError("title too short")
     movie = Movie(

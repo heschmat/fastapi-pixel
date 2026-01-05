@@ -2,7 +2,7 @@ import logging
 from fastapi import APIRouter, status, HTTPException, Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.movie import MovieCreate, MovieOut
+from app.schemas.movie import MovieCreate, MovieOut, MovieDetailOut
 # from app.repositories.movies import MovieRepository
 from app.services import movie_service
 from app.core.database import get_db
@@ -22,7 +22,7 @@ router = APIRouter(
 #     return created
 
 @router.post(
-    "/",
+    "",
     response_model=MovieOut,
     status_code=status.HTTP_201_CREATED,
 )
@@ -32,21 +32,14 @@ async def create_movie(
     db: AsyncSession = Depends(get_db),
 ):
     logger = get_logger(__name__, request)
-    logger.info(
-        "Creating movie",
-        extra={
-            "title": movie.title,
-        },
-    )
+    logger.info("Creating movie",extra={"title": movie.title,},)
 
     created = await movie_service.create_movie(
         db,
         title=movie.title,
-        review=movie.review,
     )
 
     logger.info("Movie created", extra={"movie_id": created.id},)
-
     return created
 
 
@@ -83,7 +76,7 @@ input: None
 
 @router.get(
     "/{movie_id}",
-    response_model=MovieOut,
+    response_model=MovieDetailOut,
     status_code=status.HTTP_200_OK,
 )
 async def get_movie(
@@ -92,13 +85,7 @@ async def get_movie(
     db: AsyncSession = Depends(get_db),
 ):
     logger = get_logger(__name__, request)
-
-    logger.info(
-        "Fetching movie",
-        extra={
-            "movie_id": movie_id,
-        },
-    )
+    logger.info("Fetching movie",extra={"movie_id": movie_id,},)
 
     movie = await movie_service.get_movie(db, movie_id=movie_id)
 
@@ -112,9 +99,22 @@ async def get_movie(
     #         detail="Movie not found",
     #     )
 
-    logger.info(
-        "Movie fetched successfully",
-        extra={"movie_id": movie.id},
-    )
+    logger.info("Movie fetched successfully",extra={"movie_id": movie.id},)
 
     return movie
+
+
+@router.get(
+    "",
+    response_model=list[MovieOut],
+)
+async def list_movies(
+    db: AsyncSession = Depends(get_db),
+):
+    from sqlalchemy import select
+    from app.models.movie import Movie
+    
+    result = await db.execute(
+        select(Movie)
+    )
+    return result.scalars().all()

@@ -1,8 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.movie import Movie
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
+from app.models.movie import Movie
 from app.core.exceptions import NotFoundError, ValidationError
+
 
 async def create_movie(
     db: AsyncSession,
@@ -11,10 +13,7 @@ async def create_movie(
 ) -> Movie:
     if len(title) < 3:
         raise ValidationError("title too short")
-    movie = Movie(
-        title=title,
-        review=review,
-    )
+    movie = Movie(title=title)
     db.add(movie)
     await db.commit()
     await db.refresh(movie)
@@ -23,7 +22,9 @@ async def create_movie(
 
 async def get_movie(db: AsyncSession, *, movie_id: int) -> Movie | None:
     result = await db.execute(
-        select(Movie).where(Movie.id == movie_id)
+        select(Movie)
+        .where(Movie.id == movie_id)
+        .options(selectinload(Movie.reviews))
     )
 
     movie = result.scalar_one_or_none()

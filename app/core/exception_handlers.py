@@ -31,10 +31,18 @@ EXCEPTION_STATUS_MAP = {
 #         },
 #     )
 
-logger = logging.getLogger("app.domain")
+# logger = logging.getLogger("app.domain")
+logger = logging.getLogger(__name__)
+
+def get_status_code(exc: DomainError) -> int:
+    for exc_type, status_code in EXCEPTION_STATUS_MAP.items():
+        if isinstance(exc, exc_type):
+            return status_code
+    return 400
 
 async def domain_exception_handler(request: Request, exc: DomainError):
-    status_code = EXCEPTION_STATUS_MAP.get(type(exc), 400)
+    # status_code = EXCEPTION_STATUS_MAP.get(type(exc), 400)
+    status_code = get_status_code(exc)
 
     logger.warning(
         "Domain error",

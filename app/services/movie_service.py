@@ -4,6 +4,9 @@ from sqlalchemy.orm import selectinload
 
 from app.models.movie import Movie
 from app.core.exceptions import NotFoundError, ValidationError
+from app.core.logging_utils import get_logger
+
+logger = get_logger(__name__)
 
 
 async def create_movie(
@@ -33,3 +36,10 @@ async def get_movie(db: AsyncSession, *, movie_id: int) -> Movie | None:
         raise NotFoundError(f"movie with id={movie_id} not found")
     
     return movie
+
+
+async def list_movies(db: AsyncSession) -> list[Movie]:
+    result = await db.execute(select(Movie))
+    movies = result.scalars().all()
+    logger.info("Fetched movie list", extra={"count": len(movies)})
+    return movies

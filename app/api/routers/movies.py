@@ -13,6 +13,8 @@ router = APIRouter(
     tags=["movies"],
 )
 
+logger = get_logger(__name__)
+
 # repo = MovieRepository()
 
 # @router.post("", response_model=MovieRead, status_code=status.HTTP_201_CREATED)
@@ -31,9 +33,8 @@ async def create_movie(
     request: Request,
     db: AsyncSession = Depends(get_db),
 ):
-    logger = get_logger(__name__, request)
+    # logger = get_logger(__name__, request)
     logger.info("Creating movie",extra={"title": movie.title,},)
-
     created = await movie_service.create_movie(
         db,
         title=movie.title,
@@ -84,7 +85,6 @@ async def get_movie(
     request: Request,
     db: AsyncSession = Depends(get_db),
 ):
-    logger = get_logger(__name__, request)
     logger.info("Fetching movie",extra={"movie_id": movie_id,},)
 
     movie = await movie_service.get_movie(db, movie_id=movie_id)
@@ -104,17 +104,8 @@ async def get_movie(
     return movie
 
 
-@router.get(
-    "",
-    response_model=list[MovieOut],
-)
-async def list_movies(
-    db: AsyncSession = Depends(get_db),
-):
-    from sqlalchemy import select
-    from app.models.movie import Movie
-    
-    result = await db.execute(
-        select(Movie)
-    )
-    return result.scalars().all()
+@router.get("", response_model=list[MovieOut])
+async def get_movies(db: AsyncSession = Depends(get_db)):
+    # optional intent logging
+    logger.info("Request received: list movies")
+    return await movie_service.list_movies(db)

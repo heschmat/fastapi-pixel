@@ -3,7 +3,7 @@ services:
     build: .
     container_name: api
     user: "1000:1000"
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-server-header --reload
     volumes:
       - .:/code
     ports:

@@ -28,3 +28,8 @@ class UnauthorizedError(DomainError):
 class ForbiddenError(DomainError):
     """Forbidden (403)"""
     pass
+
+
+class ServiceError(DomainError):
+    """Unexpected error in service layer (500)"""
+    pass

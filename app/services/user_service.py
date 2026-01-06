@@ -6,32 +6,32 @@ from fastapi import HTTPException, status
 
 from app.models.user import User
 from app.core.security import hash_password, verify_password
-from app.core.exceptions import NotFoundError, ValidationError
+from app.core.exceptions import NotFoundError, ValidationError, ServiceError, UnauthorizedError
+from app.core.logging_utils import get_logger
 
+logger = get_logger(__name__)
 
-async def register_user(
-    db: AsyncSession,
-    *,
-    email: str,
-    password: str,
-) -> User:
+async def register_user(db: AsyncSession, *, email: str, password: str) -> User:
     user = User(
         email=email,
         password_hash=hash_password(password),
     )
-    
+
     try:
         db.add(user)
         await db.commit()
         await db.refresh(user)
+
+        logger.info(
+            "User registered",
+            extra={"user_id": user.id, "email": email},
+        )
+
         return user
 
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create user",
-        )
+        raise ServiceError("Failed to create user") from e
 
 
 async def authenticate_user(
@@ -44,16 +44,18 @@ async def authenticate_user(
         result = await db.execute(
             select(User).where(User.email == email)
         )
+
         user = result.scalar_one_or_none()
 
-    except SQLAlchemyError:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Database error",
-        )
+    except SQLAlchemyError as e: # Exception
+        # raise HTTPException(
+        #     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        #     detail="Database error",
+        # )
+        raise ServiceError("Failed to authenticate user") from e
 
     if not user or not verify_password(password, user.password_hash):
         # raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-        raise ValidationError(f"invalid credentials")
+        raise UnauthorizedError(f'invalid credentials')
 
     return user

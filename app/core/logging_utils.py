@@ -10,6 +10,5 @@ from fastapi import Request
 #         )
 #     return logger
 
-def get_logger(name: str, request: Request | None = None):
+def get_logger(name: str) -> logging.Logger:
     return logging.getLogger(name)
-

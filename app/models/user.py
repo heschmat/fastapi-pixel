@@ -42,5 +42,10 @@ class User(Base):
         lazy="selectin",
     )
 
+    refresh_token_hash: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+
     def __repr__(self) -> str:
         return f"<User id={self.id} email={self.email}>"

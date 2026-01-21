@@ -12,7 +12,7 @@ from app.core.exceptions import UnauthorizedError
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
-async def get_current_user(
+async def get_current_user_from_token(
     token: str = Depends(oauth2_scheme),
     db: AsyncSession = Depends(get_db),
 ) -> User:

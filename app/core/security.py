@@ -1,4 +1,3 @@
-# app/core/security.py
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(
@@ -11,3 +10,9 @@ def hash_password(password: str) -> str:
 
 def verify_password(plain_password: str, password_hash: str) -> bool:
     return pwd_context.verify(plain_password, password_hash)
+
+def hash_token(token: str) -> str:
+    return pwd_context.hash(token)
+
+def verify_token(token: str, token_hash: str) -> bool:
+    return pwd_context.verify(token, token_hash)

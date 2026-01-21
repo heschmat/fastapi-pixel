@@ -13,3 +13,4 @@ pytest
 asyncpg
 pydantic-settings
 python-json-logger
+python-multipart

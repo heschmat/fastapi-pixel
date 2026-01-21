@@ -29,19 +29,17 @@ logger = get_logger(__name__)
     status_code=status.HTTP_201_CREATED,
 )
 async def create_movie(
-    movie: MovieCreate,
+    movie_in: MovieCreate,
     request: Request,
     db: AsyncSession = Depends(get_db),
 ):
     # logger = get_logger(__name__, request)
-    logger.info("Creating movie",extra={"title": movie.title,},)
-    created = await movie_service.create_movie(
-        db,
-        title=movie.title,
-    )
-
-    logger.info("Movie created", extra={"movie_id": created.id},)
-    return created
+    logger.info("Creating movie",extra={"title": movie_in.title,},)
+    movie = await movie_service.create_movie(
+    db,
+    movie_in=movie_in,
+)
+    return movie
 
 
 # @router.get("/{movie_id}", response_model=MovieRead)
@@ -80,28 +78,22 @@ input: None
     response_model=MovieDetailOut,
     status_code=status.HTTP_200_OK,
 )
-async def get_movie(
+async def get_movie_detail(
     movie_id: int,
     request: Request,
     db: AsyncSession = Depends(get_db),
 ):
-    logger.info("Fetching movie",extra={"movie_id": movie_id,},)
+    # logger.info("Fetching movie",extra={"movie_id": movie_id,},)
 
-    movie = await movie_service.get_movie(db, movie_id=movie_id)
+    # movie = await movie_service.get_movie(db, movie_id=movie_id)
 
-    # if not movie:
-    #     logger.warning(
-    #         "Movie not found",
-    #         extra={"movie_id": movie_id},
-    #     )
-    #     raise HTTPException(
-    #         status_code=status.HTTP_404_NOT_FOUND,
-    #         detail="Movie not found",
-    #     )
+    # logger.info("Movie fetched successfully",extra={"movie_id": movie.id},)
 
-    logger.info("Movie fetched successfully",extra={"movie_id": movie.id},)
-
-    return movie
+    # return movie
+    return await movie_service.get_movie_with_reviews(
+        db,
+        movie_id=movie_id,
+    )
 
 
 @router.get("", response_model=list[MovieOut])

@@ -1,29 +1,13 @@
-
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
-from app.schemas.auth import (
-    LoginRequest,
-    RegisterRequest,
-)
-from app.services import user_service
 from app.core.database import get_db
+from app.schemas.users import UserOut
+from app.schemas.auth import UserRegister, TokenRefresh
 from app.models.user import User
-
-from app.core.auth import get_current_user
-from app.core.jwt import create_access_token
-from app.core.logging_utils import get_logger
-from app.core.exceptions import NotFoundError, ValidationError
-
-# from fastapi import APIRouter, Depends
-# from sqlalchemy.orm import Session
-
-# from app.core.auth import get_current_user
-# from app.models.user import User
-# from app.db.session import get_db
-
-# router = APIRouter()
+from app.services import auth_service
+from app.core.auth import get_current_user_from_token
 
 
 router = APIRouter(
@@ -31,11 +15,11 @@ router = APIRouter(
     tags=["auth"],
 )
 
-logger = get_logger(__name__)
+# logger = get_logger(__name__)
 
 @router.get("/me")
 def read_me(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user_from_token),
 ):
     return {
         "id": current_user.id,
@@ -43,52 +27,129 @@ def read_me(
     }
 
 
+# @router.post(
+#     "/register",
+#     response_model=UserOut,
+#     status_code=status.HTTP_201_CREATED,
+# )
+# async def register(
+#     payload: RegisterRequest,
+#     request: Request,
+#     db: AsyncSession = Depends(get_db),
+# ):
+    
+#     created = await user_service.register_user(
+#         db,
+#         email=payload.email,
+#         password=payload.password,
+#     )
+    
+#     return {"message": "User created"}
+
+
+# @router.post(
+#     "/login",
+# )
+# async def login(
+#     payload: LoginRequest,
+#     request: Request,
+#     db: AsyncSession = Depends(get_db),
+# ):
+#     logger.info("authenticating user", extra={"user_email": payload.email,})
+#     user = await user_service.authenticate_user(
+#         db,
+#         email=payload.email,
+#         password=payload.password,
+#     )
+
+#     token = create_access_token(user.id)
+#     return {
+#         "access_token": token,
+#         "token_type": "bearer",
+#     }
+
+
+# @router.post("/login")
+# async def login(
+#     form_data: OAuth2PasswordRequestForm = Depends(),
+#     db: AsyncSession = Depends(get_db),
+# ):
+#     access_token = await auth_service.login(
+#         db,
+#         email=form_data.username,
+#         password=form_data.password,
+#     )
+
+#     return {
+#         "access_token": access_token,
+#         "token_type": "bearer",
+#     }
+
+
 @router.post(
     "/register",
+    response_model=UserOut,
     status_code=status.HTTP_201_CREATED,
 )
 async def register(
-    payload: RegisterRequest,
-    request: Request,
+    user_in: UserRegister,
     db: AsyncSession = Depends(get_db),
 ):
-    # Check for existing user (HTTP concern)
-    result = await db.execute(
-        select(User).where(User.email == payload.email)
-    )
-    if result.scalar_one_or_none():
-        # raise HTTPException(
-        #     status_code=400,
-        #     detail="Email already registered",
-        # )
-        raise ValidationError("Email already registered")
-
-    await user_service.register_user(
+    return await auth_service.register_user(
         db,
-        email=payload.email,
-        password=payload.password,
+        email=user_in.email,
+        password=user_in.password,
     )
-    
-    return {"message": "User created"}
 
 
-@router.post(
-    "/login",
-)
+@router.post("/login")
 async def login(
-    payload: LoginRequest,
-    request: Request,
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
 ):
-    logger.info("authenticating user", extra={"user_email": payload.email,})
-    user = await user_service.authenticate_user(
+    access, refresh = await auth_service.authenticate_user(
         db,
-        email=payload.email,
-        password=payload.password,
+        email=form_data.username,
+        password=form_data.password,
     )
 
-    token = create_access_token(user.id)
     return {
-        "access_token": token,
+        "access_token": access,
+        "refresh_token": refresh,
+        "token_type": "bearer",
+    }
+
+
+# @router.post("/refresh")
+# async def refresh(
+#     user_id: int,
+#     refresh_token: str,
+#     db: AsyncSession = Depends(get_db),
+# ):
+#     access, refresh = await auth_service.refresh_tokens(
+#         db,
+#         user_id=user_id,
+#         refresh_token=refresh_token,
+#     )
+
+#     return {
+#         "access_token": access,
+#         "refresh_token": refresh,
+#     }
+
+@router.post("/refresh")
+async def refresh(
+    token_in: TokenRefresh,
+    db: AsyncSession = Depends(get_db),
+):
+    access, refresh = await auth_service.rotate_refresh_token(
+        db,
+        user_id=token_in.user_id,
+        refresh_token=token_in.refresh_token,
+    )
+
+    return {
+        "access_token": access,
+        "refresh_token": refresh,
         "token_type": "bearer",
     }

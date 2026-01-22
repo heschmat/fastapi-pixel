@@ -5,6 +5,7 @@ from app.models.user import User
 from app.repositories.user_repository import UserRepository
 from app.core.security import verify_password, hash_password
 from app.core.jwt import create_access_token
+from app.core.db_errors import commit_or_translate
 from app.core.exceptions import ValidationError, UnauthorizedError
 from app.core.logging_utils import get_logger
 from app.repositories.user_repository import UserRepository
@@ -58,12 +59,7 @@ async def register_user(
         raise ValidationError("Email already registered")
 
     await repo.create(db, user)
-    try:
-        await db.commit()
-    except IntegrityError:
-        await db.rollback()
-        raise ValidationError("Email already registered")
-
+    await commit_or_translate(db)
     await db.refresh(user)
     return user
 

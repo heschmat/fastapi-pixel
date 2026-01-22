@@ -10,6 +10,7 @@ from app.core.exceptions import (
     ForbiddenError,
 )
 from app.core.logging_utils import get_logger
+from app.core.db_errors import commit_or_translate
 
 logger = get_logger(__name__)
 repo = ReviewRepository()
@@ -33,12 +34,7 @@ async def create_movie_review(
     )
   
     repo.create(db, review)
-    try:
-        await db.commit()
-    except IntegrityError:
-        await db.rollback()
-        raise ValidationError("You have already reviewed this movie")
-
+    await commit_or_translate(db)
     await db.refresh(review)
     return review
 

@@ -76,6 +76,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.user_repository import UserRepository
 from app.core.exceptions import NotFoundError, ValidationError
 from app.core.security import hash_password
+from app.core.db_errors import commit_or_translate
 
 
 repo = UserRepository()
@@ -109,10 +110,7 @@ async def update_user(
     if password:
         user.password_hash = hash_password(password)
 
-    try:
-        await db.commit()
-    except Exception:
-        raise ValidationError("Email already in use")
-
+    await repo.update(db, user)
+    await commit_or_translate(db)
     await db.refresh(user)
     return user

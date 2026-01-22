@@ -6,7 +6,9 @@ from app.models.movie import Movie
 
 
 class MovieRepository:
-    async def create(self, db: AsyncSession, movie: Movie) -> Movie:
+    def create(self, db: AsyncSession, movie: Movie) -> Movie:
+        # ⚠️ Repositories should be session-pure and synchronous
+        # unless they actually execute queries.
         db.add(movie)
 
     async def get_by_id(

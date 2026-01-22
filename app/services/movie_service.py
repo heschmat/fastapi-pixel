@@ -7,6 +7,7 @@ from app.schemas.movie import MovieCreate
 from app.core.exceptions import NotFoundError, ValidationError
 from app.repositories.movie_repository import MovieRepository
 from app.core.logging_utils import get_logger
+from app.core.db_errors import commit_or_translate
 
 logger = get_logger(__name__)
 
@@ -23,8 +24,8 @@ async def create_movie(
         raise ValidationError("release_year is unrealistically high")
 
     movie = Movie(**movie_in.model_dump())
-    repo.add(db, movie)
-    await db.commit()
+    repo.create(db, movie)
+    await commit_or_translate(db)
     await db.refresh(movie)
     logger.info(
         "Movie created",

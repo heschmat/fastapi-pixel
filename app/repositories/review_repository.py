@@ -5,7 +5,7 @@ from app.models.review import Review
 
 
 class ReviewRepository:
-    async def create(self, db: AsyncSession, review: Review) -> Review:
+    def create(self, db: AsyncSession, review: Review) -> Review:
         db.add(review)
 
     async def get_by_id(

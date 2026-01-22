@@ -1,5 +1,4 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
 
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
@@ -47,11 +46,6 @@ async def register_user(
         email=email,
         password_hash=hash_password(password),
     )
-
-    # try:
-    #     return await repo.create(db, user)
-    # except IntegrityError:
-    #     raise ValidationError("Email already registered")
 
     # service layer should handle transaction finalization
     existing_user = await repo.get_by_email(db, email)

@@ -30,6 +30,4 @@ class UserRepository:
         db.add(user)
         # ⚠️respository should not commit transactions; they should be handled at the service layer
         # ⚠️repository mutate the session but do not finalize changes
-        # await db.commit()
-        # await db.refresh(user)
-        # return user
+        

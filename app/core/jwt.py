@@ -1,3 +1,9 @@
+"""
+centralize all JWT parsing / verification in core/jwt.py.
+Only jwt.py should know the exact encoding, decoding, expiration, etc.
+
+=> the single source of truth for token creation and decoding
+"""
 from uuid import uuid4
 from datetime import datetime, timedelta
 from jose import jwt, JWTError

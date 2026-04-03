@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload
 
 from app.models.movie import Movie
 
@@ -20,6 +21,6 @@ class MovieRepository:
     ) -> Movie | None:
         stmt = select(Movie).where(Movie.id == movie_id)
         if with_reviews:
-            stmt = stmt.options(selectinload(Movie.reviews))
+            stmt = stmt.options(selectinload(Movie.reviews), selectinload(Movie.images),)
         result = await db.execute(stmt)
         return result.scalar_one_or_none()

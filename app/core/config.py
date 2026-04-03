@@ -29,6 +29,15 @@ class Settings(BaseSettings):
     db_host: str = Field("db", env="DB_HOST")
     db_port: int = Field(5432, env="DB_PORT")
 
+    # ───────────────────────
+    # MinIO
+    # ───────────────────────
+    minio_endpoint: str = Field(..., env="MINIO_ENDPOINT")
+    minio_public_endpoint: str = Field(..., env="MINIO_PUBLIC_ENDPOINT")
+    minio_access_key: str = Field(..., env="MINIO_ACCESS_KEY")
+    minio_secret_key: str = Field(..., env="MINIO_SECRET_KEY")
+    minio_bucket: str = Field(..., env="MINIO_BUCKET")
+    minio_secure: bool = Field(False, env="MINIO_SECURE")
 
     # ───────────────────────
     # JWT

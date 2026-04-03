@@ -87,6 +87,13 @@ class Movie(Base):
         lazy="selectin",
     )
 
+    images: Mapped[list["MovieImage"]] = relationship(
+        "MovieImage",
+        back_populates="movie",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
     def __repr__(self) -> str:
         return (
             f"<Movie id={self.id} "

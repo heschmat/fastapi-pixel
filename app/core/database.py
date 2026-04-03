@@ -9,7 +9,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.core.config import settings
 from app.core.base import Base
 
-print("DATABASE_URL USED BY APP:", settings.database_url_async)
 engine = create_async_engine(
     settings.database_url_async,
     # echo=settings.environment == "development",

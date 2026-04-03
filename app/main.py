@@ -6,6 +6,9 @@ from app.core.logging import setup_logging
 from app.core.exception_handlers import register_exception_handlers
 from app.api.routers import movies, reviews, auth, users
 
+# from app.services.storage_service import ensure_bucket_exists
+
+
 setup_logging()
 
 app = FastAPI()
@@ -27,3 +30,7 @@ app.include_router(users)
 def healthz():
     logger.info("application is healthy")
     return {"status": "ok"}
+
+# @app.on_event("startup")
+# def startup() -> None:
+#     ensure_bucket_exists()

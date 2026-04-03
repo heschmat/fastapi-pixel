@@ -16,3 +16,6 @@ python-json-logger
 python-multipart
 httpx
 pytest-asyncio
+minio
+# for file uploads FastAPI expects python-multipart when handling File(...) and Form(...)
+python-multipart

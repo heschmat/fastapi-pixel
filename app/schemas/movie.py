@@ -2,6 +2,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field, conint, confloat
 from app.models.enums import GenreEnum
 from app.schemas.review import ReviewOut
+from app.schemas.movie_image import MovieImageOut
 
 
 class MovieCreate(BaseModel):
@@ -34,3 +35,4 @@ class MovieOut(BaseModel):
 
 class MovieDetailOut(MovieOut):
     reviews: List[ReviewOut] = Field(default_factory=list)
+    images: List[MovieImageOut] = Field(default_factory=list)

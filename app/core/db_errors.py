@@ -40,5 +40,5 @@ async def commit_or_translate(db: AsyncSession):
         await db.commit()
     except IntegrityError as exc:
         await db.rollback()
-        print("EXC:", exc.orig.__dict__)
+        # print("EXC:", exc.orig.__dict__)
         raise translate_integrity_error(exc)

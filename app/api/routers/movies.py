@@ -1,11 +1,24 @@
 import logging
-from fastapi import APIRouter, status, HTTPException, Request, Depends
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    status,
+    Request,
+    File,
+    Form,
+    UploadFile,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas.movie import MovieCreate, MovieOut, MovieDetailOut
+from app.schemas.movie_image import MovieImageOut
 from app.services import movie_service
 from app.core.database import get_db
 from app.core.logging_utils import get_logger
+from app.core.auth import get_current_user_from_token
+from app.models.user import User
+
 
 router = APIRouter(
     prefix="/movies",
@@ -30,14 +43,16 @@ logger = get_logger(__name__)
 async def create_movie(
     movie_in: MovieCreate,
     request: Request,
+    current_user: User = Depends(get_current_user_from_token),
     db: AsyncSession = Depends(get_db),
 ):
     # logger = get_logger(__name__, request)
-    logger.info("Creating movie",extra={"title": movie_in.title,},)
+    logger.info("Creating movie", extra={"title": movie_in.title, "user_id": current_user.id})
     movie = await movie_service.create_movie(
-    db,
-    movie_in=movie_in,
-)
+        db,
+        movie_in=movie_in,
+        # created_by=current_user,
+    )
     return movie
 
 
@@ -100,3 +115,26 @@ async def get_movies(db: AsyncSession = Depends(get_db)):
     # optional intent logging
     logger.info("Request received: list movies")
     return await movie_service.list_movies(db)
+
+
+@router.post(
+    "/{movie_id}/images",
+    response_model=MovieImageOut,
+    status_code=status.HTTP_201_CREATED,
+)
+async def upload_movie_image(
+    movie_id: int,
+    file: UploadFile = File(...),
+    kind: str = Form(...),
+    caption: str | None = Form(None),
+    current_user: User = Depends(get_current_user_from_token),
+    db: AsyncSession = Depends(get_db),
+):
+    return await movie_service.upload_movie_image(
+        db,
+        movie_id=movie_id,
+        uploaded_by_user_id=current_user.id,
+        file=file,
+        kind=kind,
+        caption=caption,
+    )

@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     db_host: str = Field("db", env="DB_HOST")
     db_port: int = Field(5432, env="DB_PORT")
 
+    # storage backend selector
+    storage_backend: str = Field("minio", env="STORAGE_BACKEND")
+
     # ───────────────────────
     # MinIO
     # ───────────────────────
@@ -38,6 +41,12 @@ class Settings(BaseSettings):
     minio_secret_key: str = Field(..., env="MINIO_SECRET_KEY")
     minio_bucket: str = Field(..., env="MINIO_BUCKET")
     minio_secure: bool = Field(False, env="MINIO_SECURE")
+
+    # ───────────────────────
+    # AWS S3
+    # ───────────────────────
+    aws_region: str = Field("us-east-1", env="AWS_REGION")
+    s3_bucket: str = Field("", env="S3_BUCKET")
 
     # ───────────────────────
     # JWT

@@ -37,7 +37,6 @@ async def update_user(
     if password:
         user.password_hash = hash_password(password)
 
-    await repo.update(db, user)
     await commit_or_translate(db)
     await db.refresh(user)
     return user

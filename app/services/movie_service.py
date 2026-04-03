@@ -2,7 +2,6 @@ from fastapi import UploadFile
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 
 from app.models.movie import Movie
 from app.schemas.movie import MovieCreate

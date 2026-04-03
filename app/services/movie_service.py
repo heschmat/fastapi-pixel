@@ -1,5 +1,3 @@
-from fastapi import UploadFile
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -77,7 +75,8 @@ async def upload_movie_image(
     *,
     movie_id: int,
     uploaded_by_user_id: int,
-    file: UploadFile,
+    data: bytes,
+    content_type: str,
     kind: str,
     caption: str | None = None,
 ) -> MovieImage:
@@ -85,28 +84,26 @@ async def upload_movie_image(
     if not movie:
         raise NotFoundError("Movie not found")
 
-    if not file.content_type:
+    if not content_type:
         raise ValidationError("File content type is required")
-
-    data = await file.read()
 
     object_key = build_movie_image_object_key(
         movie_id=movie_id,
         uploaded_by_user_id=uploaded_by_user_id,
-        content_type=file.content_type,
+        content_type=content_type,
     )
 
     upload_movie_image_bytes(
         data=data,
         object_key=object_key,
-        content_type=file.content_type,
+        content_type=content_type,
     )
 
     image = MovieImage(
         movie_id=movie_id,
         uploaded_by_user_id=uploaded_by_user_id,
         object_key=object_key,
-        content_type=file.content_type,
+        content_type=content_type,
         file_size=len(data),
         kind=kind,
         caption=caption,

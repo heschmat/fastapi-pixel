@@ -130,11 +130,14 @@ async def upload_movie_image(
     current_user: User = Depends(get_current_user_from_token),
     db: AsyncSession = Depends(get_db),
 ):
+    data = await file.read()
+
     return await movie_service.upload_movie_image(
         db,
         movie_id=movie_id,
         uploaded_by_user_id=current_user.id,
-        file=file,
+        data=data,
+        content_type=file.content_type or "",
         kind=kind,
         caption=caption,
     )

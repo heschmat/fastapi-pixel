@@ -62,9 +62,7 @@ async def test_auth_movie_review_vertical_slice(
     )
     assert login_resp.status_code == 200
 
-    tokens = login_resp.json()
-    access_token = tokens["access_token"]
-
+    access_token = login_resp.json()["access_token"]
     headers = {"Authorization": f"Bearer {access_token}"}
 
     # --- 3. Create movie ---

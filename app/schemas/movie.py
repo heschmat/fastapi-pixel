@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel, Field, conint, confloat
+from pydantic import BaseModel, Field, conint, confloat, ConfigDict
 from app.models.enums import GenreEnum
 from app.schemas.review import ReviewOut
 from app.schemas.movie_image import MovieImageOut
@@ -22,15 +22,14 @@ class MovieCreate(BaseModel):
 
 
 class MovieOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     title: str
     release_year: Optional[int]
     runtime: int
     rating: Optional[float]
     genres: List[GenreEnum]
-
-    class Config:
-        from_attributes = True
 
 
 class MovieDetailOut(MovieOut):

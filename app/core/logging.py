@@ -1,6 +1,6 @@
 import logging
 import sys
-from pythonjsonlogger import jsonlogger
+from pythonjsonlogger.json import JsonFormatter
 
 from app.core.request_context import request_id_ctx, request_method_ctx
 
@@ -35,7 +35,7 @@ def setup_logging(log_level: str = "INFO"):
     # formatter = logging.Formatter(
     #     "%(asctime)s | %(levelname)s | %(name)s | request_id=%(request_id)s | %(message)s"
     # )
-    formatter = jsonlogger.JsonFormatter(LOG_FORMAT)
+    formatter = JsonFormatter(LOG_FORMAT)
     handler.setFormatter(formatter)
 
     root = logging.getLogger()

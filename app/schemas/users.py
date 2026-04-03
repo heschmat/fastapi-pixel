@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 # class RegisterRequest(BaseModel):
 #     email: EmailStr
@@ -9,11 +9,11 @@ from pydantic import BaseModel, EmailStr, Field
 #     password: str
 
 class UserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     email: EmailStr
 
-    class Config:
-        from_attributes = True
 
 
 class UserUpdate(BaseModel):

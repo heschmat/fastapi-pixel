@@ -1,6 +1,6 @@
 from urllib.parse import quote_plus
 
-from pydantic import Field, computed_field
+from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -23,30 +23,30 @@ class Settings(BaseSettings):
     # ───────────────────────
     # Database credentials
     # ───────────────────────
-    db_user: str = Field(..., env="DB_USER")
-    db_pass: str = Field(..., env="DB_PASS")
-    db_name: str = Field(..., env="DB_NAME")
-    db_host: str = Field("db", env="DB_HOST")
-    db_port: int = Field(5432, env="DB_PORT")
+    db_user: str
+    db_pass: str
+    db_name: str
+    db_host: str = "db"
+    db_port: int = 5432
 
     # storage backend selector
-    storage_backend: str = Field("minio", env="STORAGE_BACKEND")
+    storage_backend: str = "minio"
 
     # ───────────────────────
     # MinIO
     # ───────────────────────
-    minio_endpoint: str = Field(..., env="MINIO_ENDPOINT")
-    minio_public_endpoint: str = Field(..., env="MINIO_PUBLIC_ENDPOINT")
-    minio_access_key: str = Field(..., env="MINIO_ACCESS_KEY")
-    minio_secret_key: str = Field(..., env="MINIO_SECRET_KEY")
-    minio_bucket: str = Field(..., env="MINIO_BUCKET")
-    minio_secure: bool = Field(False, env="MINIO_SECURE")
+    minio_endpoint: str
+    minio_public_endpoint: str
+    minio_access_key: str
+    minio_secret_key: str
+    minio_bucket: str
+    minio_secure: bool = False
 
     # ───────────────────────
     # AWS S3
     # ───────────────────────
-    aws_region: str = Field("us-east-1", env="AWS_REGION")
-    s3_bucket: str = Field("", env="S3_BUCKET")
+    aws_region: str = "us-east-1"
+    s3_bucket: str = ""
 
     # ───────────────────────
     # JWT
